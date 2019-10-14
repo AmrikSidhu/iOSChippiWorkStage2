@@ -11,21 +11,24 @@ import GameplayKit
 
 class GameScene: SKScene {
     
+    
+    
     var player:Player = Player(imageNamed: "player")
     //var enemy:Enemy = Enemy(imageNamed: "enemy")
-    var enemy1:SKSpriteNode!
-     var enemy2:SKSpriteNode!
-     var enemy3:SKSpriteNode!
-     var enemy4:SKSpriteNode!
-     var enemy5:SKSpriteNode!
-     var enemy6:SKSpriteNode!
-     var enemy7:SKSpriteNode!
-     var enemy8:SKSpriteNode!
+    var enemy:SKSpriteNode!
+//     var enemy2:SKSpriteNode!
+//     var enemy3:SKSpriteNode!
+//     var enemy4:SKSpriteNode!
+//     var enemy5:SKSpriteNode!
+//     var enemy6:SKSpriteNode!
+//     var enemy7:SKSpriteNode!
+//     var enemy8:SKSpriteNode!
     //var playerBullet: SKSpriteNode!
     var playerBullet:Bullet = Bullet(imageNamed: "player_bullet")
     var enemyBullet:Bullet = Bullet(imageNamed: "enemyBullet")
     //var screenBorder:SKSpriteNode!
     var bulletsArray:[SKSpriteNode] = []
+     var enemyBulletsArray:[SKSpriteNode] = []
     var upArrow:SKSpriteNode!
     var downArrow:SKSpriteNode!
     var leftArrow:SKSpriteNode!
@@ -43,6 +46,7 @@ class GameScene: SKScene {
     var arrowButtonsRect:CGRect!
     
     override func didMove(to view: SKView) {
+        
         // Set the background color of the app
         self.backgroundColor = SKColor.black;
         let background = SKSpriteNode(imageNamed: "background")
@@ -58,19 +62,13 @@ class GameScene: SKScene {
         self.player.position = CGPoint(x: self.size.width*0.2, y: self.size.height / 2)
         addChild(self.player)
         
-        self.enemy1 = self.scene?.childNode(withName: "enemy1") as? SKSpriteNode
-        self.enemy2 = self.scene?.childNode(withName: "enemy2") as? SKSpriteNode
-        self.enemy3 = self.scene?.childNode(withName: "enemy3") as? SKSpriteNode
-        self.enemy4 = self.scene?.childNode(withName: "enemy4") as? SKSpriteNode
-        self.enemy5 = self.scene?.childNode(withName: "enemy5") as? SKSpriteNode
-        self.enemy6 = self.scene?.childNode(withName: "enemy6") as? SKSpriteNode
-        self.enemy7 = self.scene?.childNode(withName: "enemy7") as? SKSpriteNode
-        self.enemy8 = self.scene?.childNode(withName: "enemy8") as? SKSpriteNode
-//        self.enemy = Enemy(imageNamed: "enemy")
-//        self.enemy.size.width = self.size.width * 0.4
-//        self.enemy.size.height = self.size.height * 0.5
-//        self.enemy.position = CGPoint(x: self.size.width / 2 + self.enemy.size.width*0.5, y: self.size.height/2)
-//        addChild(self.enemy)
+        self.enumerateChildNodes(withName: "enemy") {
+                        (node, stop) in
+            self.enemy = node as? SKSpriteNode
+        
+        self.enemy = self.scene?.childNode(withName: "enemy") as? SKSpriteNode
+        }
+
         
 //        let square = UIBezierPath(rect: CGRect(x: 0,y: 0, width: 50, height: 50))
 //        let followSquare = SKAction.follow(square.cgPath, asOffset: true, orientToPath: false, duration: 5.0)
@@ -80,14 +78,11 @@ class GameScene: SKScene {
 //
 //        //let reverseCircleAnimation = circleAnimation.reversed()
 //        //self.enemy.run(SKAction.sequence([circleAnimation,reverseCircleAnimation]))
-        self.enemy1.run(SKAction.repeatForever(circleAnimation.reversed()))
-        self.enemy2.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy3.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy4.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy5.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy6.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy7.run(SKAction.repeatForever(circleAnimation.reversed()))
-         self.enemy8.run(SKAction.repeatForever(circleAnimation.reversed()))
+        self.enumerateChildNodes(withName: "enemy") {
+                        (node, stop) in
+            self.enemy = node as? SKSpriteNode
+        self.enemy.run(SKAction.repeatForever(circleAnimation.reversed()))
+        }
 //        self.enemy.physicsBody = SKPhysicsBody(texture: self.enemy.texture ?? SKTexture(imageNamed: "enemy"), alphaThreshold: 0, size: (self.enemy.texture!.size()))
 //        self.enemy.physicsBody = SKPhysicsBody(texture: self.enemy.texture!, size: (self.enemy.texture!.size()))
 //        self.enemy.physicsBody?.affectedByGravity = false
@@ -142,9 +137,12 @@ class GameScene: SKScene {
         addChild(self.upRightArrow)
         
          self.arrowButtonsRect = CGRect(x: 0, y: 0, width: self.rightArrow.position.x + self.rightArrow.size.width/2, height: self.upArrow.position.y + self.upArrow.size.height/2)
+    
+    
     }
     
     override func update(_ currentTime: TimeInterval) {
+        
         if self.arrowButtonTouched == true {
             self.movePlayer()
         }
@@ -154,7 +152,20 @@ class GameScene: SKScene {
         }
         self.removeBullet()
         self.bulletHitsEnemy()
+        self.spawnEnemyBullet()
+        self.randomeenemyBulltsonScreen()
+        
     }
+    
+    
+//    func didBegin(_ contact: SKPhysicsContact) {
+//        let nodeA = contact.bodyA.node
+//        let nodeB = contact.bodyB.node
+//
+//
+//    }
+    
+    
     func spawnPlayerBullet() {
         // 1. Make a bullet
         
@@ -168,6 +179,11 @@ class GameScene: SKScene {
         addChild(playerBullet)
         self.bulletsArray.append(playerBullet)
         }
+        
+        
+        
+        // MARK: Z_creating enemy bulletss
+        
         //        else{
         //            let previousBullet = self.bulletsArray[self.bulletsArray.count - 1]
         //            playerBullet.position = CGPoint(x: previousBullet.position.x-200, y: self.player.position.y)
@@ -182,6 +198,19 @@ class GameScene: SKScene {
         
         //print("size of bullets: \(self.bulletsArray.count)")
         //print("x of bullet: \(self.bulletsArray[self.bulletsArray.count-1].position.x)" )
+    }
+    func spawnEnemyBullet() {
+        
+        if(self.enemyBulletsArray.count <= 20){
+            self.enemyBullet = Bullet(imageNamed: "enemyBullet")
+            self.enemyBullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "enemyBullet"), size: self.enemyBullet.size)
+            self.enemyBullet.physicsBody?.affectedByGravity = false
+            enemyBullet.size.width = self.enemy.size.width/10
+            enemyBullet.size.height = self.enemy.size.height/10
+            enemyBullet.position = CGPoint(x: self.enemy.position.x , y: self.enemy.position.y)
+            addChild(enemyBullet)
+            self.enemyBulletsArray.append(enemyBullet)
+        }
     }
 
     func movePlayer(){
@@ -258,8 +287,8 @@ class GameScene: SKScene {
                     self.bulletsArray.removeFirst()
                     print("outside")
                 }
-                if sprite.intersects(self.enemy1) {
-                    self.enemy1.physicsBody = nil
+                if sprite.intersects(self.enemy) {
+                    self.enemy.physicsBody = nil
                     sprite.removeFromParent()
                     self.bulletsArray.removeFirst()
                     }
@@ -281,10 +310,10 @@ class GameScene: SKScene {
         var destination1 = CGPoint.zero
         if b > 0 {
             // move bullet to the top of screen
-            destination1.y = self.size.height + self.enemy1.size.height*2
+            destination1.y = self.size.height + self.enemy.size.height*2
         } else {
             // move bullet to the bottom of screen
-            destination1.y = -self.enemy1.size.height*2
+            destination1.y = -self.enemy.size.height*2
         }
         // X position of destination in proportion to the the Y Position
         destination1.x = self.player.position.x +
@@ -293,10 +322,10 @@ class GameScene: SKScene {
         var destination2 = CGPoint.zero
         if a > 0 {
             // move the bullet to the right of screen
-            destination2.x = self.size.width + self.enemy1.size.width*2
+            destination2.x = self.size.width + self.enemy.size.width*2
         } else {
             //move the bullet to the left of screen
-            destination2.x = -self.enemy1.size.width*2
+            destination2.x = -self.enemy.size.width*2
         }
         destination2.y = self.player.position.y +
             ((destination2.x - self.player.position.x) / a * b)
@@ -310,8 +339,9 @@ class GameScene: SKScene {
             destination = destination2
         }
         
-        let distance = sqrt(pow(destination.x - self.player.position.x, 2) +
-            pow(destination.y - self.player.position.y, 2))
+        // distance were never used
+//        let distance = sqrt(pow(destination.x - self.player.position.x, 2) +
+//            pow(destination.y - self.player.position.y, 2))
         
         let bulletVector = CGVector(dx: destination.x - self.player.position.x, dy: destination.y - self.player.position.y)
         // Shoot the bullet to destination
@@ -321,8 +351,95 @@ class GameScene: SKScene {
         //self.playerBullet.run(bulletMoveAcion)
     }
     
+    func randomeenemyBulltsonScreen() {
+        //var randDomeBulletsOnScreenArray:[SKSpriteNode] = []
+        
+        var randomeX:Int!
+        var randomeY:Int!
+        randomeX = Int.random(in: 200...800)
+        randomeY = Int.random(in: 200...800)
+        if(self.size.width >= 0 )
+        {
+//            for i in self.enemyBulletsArray
+//            {
+//                if(i <= self.enemyBulletsArray)
+//                {
+//        self.enemyBullet.position.x =  self.enemy.position.x - CGFloat(randomeX)
+//        self.enemyBullet.position.y = self.enemy.position.y - CGFloat(randomeY)
+//            }
+            //            }
+        }
+        
+//        let aX = self.enemy.position.x - self.player.position.x;
+//        let bY = self.enemy.position.y - self.player.position.y;
+//        //Caculating angle between a and b
+//        let angle = atan2(bY, aX)
+//        let angleDegrees = angle * (180 / CGFloat.pi);
+//        //print("Angle: \(angleDegrees)")
+//        // turning the bullet to destination direction
+//        self.enemyBullet.zRotation = angle
+//
+//        var destination1 = CGPoint.zero
+//        if bY > 0 {
+//            // move bullet to the top of screen
+//            destination1.y = -self.size.height + CGFloat(randomeY)
+//        } else {
+//            // move bullet to the bottom of screen
+//            destination1.y = -self.enemy.size.height*2
+//        }
+//        // X position of destination in proportion to the the Y Position
+//        destination1.x = self.enemy.position.x +
+//            ((destination1.y - self.enemy.position.y) / bY * aX)
+//
+//
+//        var destination2 = CGPoint.zero
+//        if aX > 0 {
+//            // move the bullet to the right of screen
+//            destination2.x = self.size.width + self.enemy.size.width + CGFloat(randomeX)
+//        } else {
+//            //move the bullet to the left of screen
+//            destination2.x = -self.enemy.size.width*2
+//        }
+//        destination2.y = self.player.position.y +
+//            ((destination2.x - self.player.position.x) / aX * bY)
+//
+//        var destination:CGPoint!
+//        //comparing the absolute Coordinate values of destination
+//        if abs(destination1.x) < abs(destination2.x) || abs(destination1.y) < abs(destination2.y) {
+//            destination = destination1
+//        }
+//        else {
+//            destination = destination2
+//        }
+//
+//        // distance were never used
+//        //        let distance = sqrt(pow(destination.x - self.player.position.x, 2) +
+//        //            pow(destination.y - self.player.position.y, 2))
+//
+//        let bulletVector = CGVector(dx: destination.x - self.player.position.x, dy: destination.y - self.player.position.y)
+//        // Shoot the bullet to destination
+//        self.playerBullet.physicsBody?.velocity = bulletVector
+        
+        
+       
+        
+        
+    }
+    
+    
     func bulletHitsEnemy(){
-        if self.playerBullet.intersects(self.enemy1){
+       
+            
+            self.enumerateChildNodes(withName: "enemy") {
+                           (node, stop) in
+                self.enemy = node as? SKSpriteNode
+                 if self.playerBullet.intersects(self.enemy){
+                    self.enemy.removeFromParent()
+                    self.removeBullet()
+                    print("ememy removed")
+                
+                       }
+            
 //            let cropNode = SKCropNode()
 //            cropNode.position = CGPoint(x: 100, y: 100)
 //            
